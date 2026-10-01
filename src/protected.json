@@ -3459,7 +3459,10 @@
     "src/vaultpatcher/modules/xycraft_core.json",
     "src/vaultpatcher/modules/xycraft_machines.json",
     "src/vaultpatcher/modules/yet_another_config_lib_v3.json",
-    "src/vaultpatcher/modules/yungsapi.json"
+    "src/vaultpatcher/modules/yungsapi.json",
+    "src/zh_tw/config.json",
+    "src/zh_tw/overrides.json",
+    "src/zh_tw/terms.json"
   ],
   "released": [
     {

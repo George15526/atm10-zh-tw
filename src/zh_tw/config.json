@@ -1,0 +1,45 @@
+{
+ "_why": "繁體版出包設定。上游倉庫的連結只在「會被程式使用」的地方換成本倉庫（安裝器的更新查詢、遊戲內更新提示、主選單按鈕、捷徑檔）；說明文件裡對上游的致謝與連結保留原樣。",
+ "repo": "George15526/atm10-zh-tw",
+ "upstream_repo": "chiba233/atm10-zh-cn",
+
+ "renames": {
+  "_why": "出現在檔名與目錄名、同時又被安裝器或文件以文字引用的中文名稱。檔名與正文必須轉成同一個結果，所以不交給 OpenCC 依上下文斷詞，一律以這張表為準。檔名裡出現表外的中文會直接報錯。",
+  "ATM10汉化包": "ATM10漢化包",
+  "请安装前务必看我": "請安裝前務必看我",
+  "致谢与技术说明": "致謝與技術說明",
+  "项目主页与反馈": "專案首頁與回饋",
+  "可选mods-拼音搜索": "可選mods-拼音搜尋",
+  "双击安装-Windows": "雙擊安裝-Windows",
+  "来源与许可": "來源與授權"
+ },
+
+ "language_def": {
+  "_why": "上游在 pack.mcmeta 裡把 zh_cn 的顯示名改成英文（Chinese (Simplified) / China），繁體版照同一做法。",
+  "zh_tw": {"name": "Chinese (Traditional)", "region": "Taiwan", "bidirectional": false}
+ },
+
+ "menu_buttons": {
+  "_why": "主選單按鈕上烤進圖片的字（scripts/zh_tw/images_tw.py 重繪）。用詞照原版繁中：選單的「離開遊戲」、伺服器、模組。GitHub / Reddit / Discord 等品牌按鈕維持英文，與上游一致。",
+  "singleplayer": "單人遊戲",
+  "multiplayer": "多人遊戲",
+  "options": "選項",
+  "exit": "離開遊戲",
+  "mods": "模組",
+  "language": "語言",
+  "akliz": "租用伺服器",
+  "hanhua_home": "漢化包首頁",
+  "hanhua_issues": "問題回報"
+ },
+
+ "fonts_tc": {
+  "_why": "繁體圖片重繪用字型，與上游 scripts/fetch_fonts.sh 的五個字型一一對應，只換成台灣字形（TC / zh_hant）。scripts/zh_tw/fetch_fonts_tw.py 依此下載並核雜湊（member 是 zip 內的路徑，雜湊核的是取出來的那個檔）。",
+  "bold":  {"file": "bold.otf",  "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/Sans2.004/Sans/SubsetOTF/TC/NotoSansTC-Bold.otf", "sha256": "55420b259eb119bf5f2a0aadba10cf9d736c12d64ab93e78546d69ef5f43558b"},
+  "thin":  {"file": "thin.otf",  "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/Sans2.004/Sans/SubsetOTF/TC/NotoSansTC-Light.otf", "sha256": "961c9a8945fc18b924795f42d17a24d50abcaad8f8724aafdc94cf255b001ed1"},
+  "serif": {"file": "serif.otf", "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/Serif2.003/Serif/SubsetOTF/TC/NotoSerifTC-Black.otf", "sha256": "55c68df309e702cdb56b9ffd6b8185468afc0cb070aa9c2f14099de0cae64d12"},
+  "pixel-10": {"file": "pixel-10.ttf", "url": "https://github.com/TakWolf/fusion-pixel-font/releases/download/2026.07.20/fusion-pixel-font-10px-proportional-ttf-v2026.07.20.zip", "member": "fusion-pixel-10px-proportional-zh_hant.ttf", "sha256": "c7daba1a814c0d9f9a56809deea294083daebc1476062bcba24d374d4a05b9b5"},
+  "pixel-12": {"file": "pixel-12.ttf", "url": "https://github.com/TakWolf/fusion-pixel-font/releases/download/2026.07.20/fusion-pixel-font-12px-proportional-ttf-v2026.07.20.zip", "member": "fusion-pixel-12px-proportional-zh_hant.ttf", "sha256": "3462877948294744c4edf8c765354f326d227f58c1b9e8087543137ea8d0e737"}
+ },
+
+ "readme_notice": "> **繁體中文（台灣）版**：本包由簡體版「ATM10 漢化補丁·綠油油版」（chiba233/atm10-zh-cn）在構建時轉換而來，專有名詞依 Minecraft 原版官方繁體（台灣）譯名校準。繁體版的問題請回報到 https://github.com/George15526/atm10-zh-tw/issues 。\n\n"
+}
