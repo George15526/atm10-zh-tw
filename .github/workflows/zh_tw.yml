@@ -1,0 +1,97 @@
+# atm10-zh-tw — 繁體中文（台灣）版出包
+#
+# 吃上游（chiba233/atm10-zh-cn）已發布的簡體 zip，轉成繁體 zip。
+# 簡體的整條管線完全不碰，所以上游改了哪個生成器，這裡自動跟著吃到；
+# 本檔是上游沒有的檔案，合併上游時不會衝突。
+#
+# 手動觸發：Actions → zh_tw → Run workflow，填上游的 tag（例：vr26）。
+name: zh_tw
+
+on:
+  workflow_dispatch:
+    inputs:
+      upstream_tag:
+        description: '上游簡體版的 release tag（例：vr26）'
+        required: true
+      fill_from_mods:
+        description: '用各版模組 jar 自帶的 zh_cn 補位（Minecraft 的 zh_tw 不會回退到 zh_cn）'
+        type: boolean
+        default: true
+      publish:
+        description: '在本倉庫建立同名 release 並上傳繁體包'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ inputs.upstream_tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 安裝依賴（釘雜湊）
+        run: |
+          python -m pip install --require-hashes -r requirements-zh_tw.lock
+          python -m pip install --require-hashes -r requirements.lock   # Pillow：重繪按鈕圖
+
+      - name: 取繁體字型（核雜湊）
+        run: python scripts/zh_tw/fetch_fonts_tw.py
+
+      - name: 繁體任務書橫幅（對著該版官方原圖重繪）
+        run: |
+          set -euo pipefail
+          python scripts/fetch_pack.py 8.1 build/packsrc/8.1 --no-jars
+          ATM_PACK_ROOT=build/packsrc/8.1 python scripts/zh_tw/gen_banners_tw.py
+
+      - name: 反例測試
+        run: python scripts/zh_tw/test_zh_tw.py
+
+      - name: 取上游簡體包
+        run: |
+          set -euo pipefail
+          UP=$(python -c "import json;print(json.load(open('src/zh_tw/config.json'))['upstream_repo'])")
+          mkdir -p upstream
+          gh release download "$TAG" -R "$UP" -p 'atm10-zh_cn-*.zip' -D upstream
+          ls -la upstream
+          [ "$(ls upstream/*.zip | wc -l)" -ge 2 ] || { echo "❌ 上游 $TAG 沒有簡體 zip"; exit 1; }
+
+      - name: 轉換
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          for z in upstream/atm10-zh_cn-*.zip; do
+            mc=$(basename "$z" | sed -E 's/.*-atm([0-9.]+)\.zip$/\1/')
+            fill=()
+            if [ "${{ inputs.fill_from_mods }}" = "true" ] && [[ "$z" == *-client-* ]]; then
+              [ -d "pack-$mc/mods" ] || python scripts/fetch_pack.py "$mc" "pack-$mc"
+              fill=(--mods "pack-$mc/mods")
+            fi
+            python scripts/zh_tw/build_tw.py "$z" --out dist --banners build/zh_tw/questpics "${fill[@]}"
+          done
+
+      - name: 閘門（殘留簡體字 + 骨架不變）
+        run: python scripts/zh_tw/check_tw.py dist/atm10-zh_tw-*.zip --against upstream/atm10-zh_cn-*.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: atm10-zh_tw-${{ inputs.upstream_tag }}
+          path: dist/atm10-zh_tw-*.zip
+
+      - name: 發布
+        if: ${{ inputs.publish }}
+        run: |
+          set -euo pipefail
+          gh release create "$TAG" dist/atm10-zh_tw-*.zip \
+            --title "ATM10 繁體中文（台灣）版 $TAG" \
+            --notes "由上游簡體版 $TAG 轉換。安裝方式見包內「請安裝前務必看我.md」。"
