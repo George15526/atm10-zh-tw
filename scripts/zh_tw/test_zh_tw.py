@@ -93,6 +93,15 @@ class ConverterTest(unittest.TestCase):
     def test_opencc_place_name(self):
         self.assertEqual(conv(False).convert('清理了 $hit 个旧版本'), '清理了 $hit 個舊版本')
 
+    def test_taiwan_quotes(self):
+        c = conv(False)
+        self.assertEqual(c.convert('点击“搜索”按钮'), '點選「搜尋」按鈕')
+        self.assertEqual(c.convert('他说“这是‘内层’引号”'), '他說「這是『內層』引號」')
+        self.assertEqual(c.convert('输入“%s”即可'), '輸入「%s」即可')
+        self.assertEqual(c.convert('Explorer’s 罗盘'), 'Explorer’s 羅盤')       # 撇號不動
+        self.assertEqual(c.convert('设置‘renderHunger’为假'), '設定‘renderHunger’為假')
+        self.assertEqual(c.convert('只有“左引号'), '只有“左引號')                 # 不成對不動
+
     def test_pua_input_is_rejected(self):
         with self.assertRaises(ValueError):
             conv(False).convert('铁\U000F0001块')

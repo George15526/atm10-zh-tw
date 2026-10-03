@@ -64,6 +64,7 @@ python scripts/zh_tw/check_tw.py dist/atm10-zh_tw-*.zip --against upstream/atm10
 4. **OpenCC s2twp**：只吃**非 ASCII 片段**——它的詞庫有中英混寫的詞（B超、U盘），
    會吃掉色碼 `&#4497DB` 的字母。
 5. **字形統一**（`post_chars`）：臺 → 台、箇 → 個。
+6. **引號**：中文語境裡成對的 “…” ‘…’ → 「…」 『…』（`converter.taiwan_quotes`）；英文撇號與不成對的引號不動。
 
 語言檔另外有兩層更優先的：`overrides.json` 的逐鍵覆寫，以及「值與原版 zh_cn 相同的原版鍵直接取官方 zh_tw」。
 
