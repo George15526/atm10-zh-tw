@@ -166,8 +166,8 @@ class FixupTest(unittest.TestCase):
         mods = tmp / 'mods'
         mods.mkdir()
         make_zip(mods / 'x.jar', {
-            'assets/x/lang/zh_cn.json': '{"a": "铁锭", "b": "铜锭", "c": "金锭"}',
-            'assets/x/lang/zh_tw.json': '{"c": "金錠（模組自己的繁中）"}',
+            'assets/x/lang/zh_cn.json': '{"a": "铁锭", "b": "铜锭", "c": "金锭", "d": "结构罗盘"}',
+            'assets/x/lang/zh_tw.json': '{"c": "金錠（模組自己的繁中）", "d": "Explorer\'s Compass"}',
             'assets/x/patchouli_books/g/zh_cn/entries/e.json': '{"name": "入门"}',
             'assets/x/patchouli_books/g/zh_cn/entries/f.json': '{"name": "进阶"}',
             'assets/x/patchouli_books/g/zh_tw/entries/f.json': '{"name": "進階"}',
@@ -176,7 +176,8 @@ class FixupTest(unittest.TestCase):
         rp = tmp / 'rp.zip'
         make_zip(rp, {'assets/x/lang/zh_cn.json': '{"a": "铁锭"}'})
         keys, files = build_tw.collect_mod_fill(mods, rp)
-        self.assertEqual(keys, {'x': {'b': '铜锭'}})          # a 簡體包有、c 模組自己有繁中
+        # a 簡體包有、c 模組自己有繁中；d 的模組 zh_tw 只是英文佔位，照樣補
+        self.assertEqual(keys, {'x': {'b': '铜锭', 'd': '结构罗盘'}})
         self.assertEqual(set(files), {'assets/x/patchouli_books/g/zh_tw/entries/e.json',
                                       'assets/x/ae2guide/_zh_tw/p.md'})
 

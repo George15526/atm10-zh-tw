@@ -439,7 +439,12 @@ def collect_mod_fill(mods_dir, pack_zip):
                     continue
                 have = pack.get(ns, {})
                 for k, v in cn.items():
-                    if k in have or k in tw or not isinstance(v, str) or k.startswith('/'):
+                    if k in have or not isinstance(v, str) or k.startswith('/'):
+                        continue
+                    # 模組自帶 zh_tw 只有在「真的譯了」時才尊重。不少模組的 zh_tw 是把 en_us
+                    # 整份拷過去當佔位（ExplorersCompass 的 zh_tw 寫的就是「Explorer's Compass」），
+                    # 照單全收的話，zh_cn 明明有「结构罗盘」，繁體玩家卻看到英文。
+                    if isinstance(tw.get(k), str) and CJK.search(tw[k]):
                         continue
                     if not CJK.search(v):
                         continue
