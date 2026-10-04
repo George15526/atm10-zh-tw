@@ -154,11 +154,25 @@ class FixupTest(unittest.TestCase):
             build_tw._installer('echo hello', 'install.sh', self.ctx())
 
     def test_installer_rewrite(self):
-        src = 'REPO="chiba233/atm10-zh-cn"\nprintf \'lang:zh_cn\\n\'\n'
+        src = ('REPO="chiba233/atm10-zh-cn"\nprintf \'lang:zh_cn\\n\'\n'
+               'say " ATM10 8.1 汉化补丁 · 绿油油版 — 安装器"\n')
         out = build_tw._installer(src, 'install.sh', self.ctx())
+        self.assertIn('繁體中文漢化包 — 安裝器', out)
         self.assertIn('George15526/atm10-zh-tw', out)
         self.assertIn('lang:zh_tw', out)
         self.assertNotIn('zh_cn', out)
+
+    def test_package_readme(self):
+        ctx = self.ctx()
+        ctx.side, ctx.mc = 'server', '8.1'
+        up = '| 加载器 | NeoForge 21.1.249 |'.encode('utf-8')
+        out = build_tw.package_readme(up, ctx).decode('utf-8')
+        self.assertIn('v8.1', out)
+        self.assertIn('NeoForge 21.1.249', out)
+        self.assertIn('George15526/atm10-zh-tw/issues', out)
+        self.assertNotIn('@@', out)
+        with self.assertRaises(SystemExit):            # 讀不到版本號就紅，不寫錯的
+            build_tw.package_readme(b'no version here', ctx)
 
     def test_pb_tables_keep_both_scripts(self):
         js = ('const PB_SYS = {"玛瑙蜜蜂": 1, "Agate Bee": 1};\n'

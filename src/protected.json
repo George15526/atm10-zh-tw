@@ -3462,6 +3462,8 @@
     "src/vaultpatcher/modules/yungsapi.json",
     "src/zh_tw/config.json",
     "src/zh_tw/overrides.json",
+    "src/zh_tw/package/README.client.md",
+    "src/zh_tw/package/README.server.md",
     "src/zh_tw/terms.json"
   ],
   "released": [
