@@ -60,7 +60,8 @@ from pathlib import Path
 import vanilla
 from paths import COMMON, PACK, snapshot
 ROOT = Path(__file__).resolve().parent.parent
-SNAPSHOT = snapshot('trophy_entity_names.json')
+# v2 只让已安装资产命名空间使用资源包补键，旧快照里的未安装模组候选必须失效。
+SNAPSHOT = snapshot('trophy_entity_names_v2.json')
 OUT = (PACK / 'assets'
        / 'hanhua_trophies' / 'lang' / 'zh_cn.json')
 
@@ -83,6 +84,39 @@ SKIP_IDS = {
 SENTENCEY = re.compile(r'[！!？?。，,；;：:…]')
 MAX_NAME_LEN = 16
 
+# TrophyData.Name 只剩这串英文，原实体 ID 已经丢失；同名实体不可能再按命名空间
+# 区分。这里不是选某一个实体的译名，而是给**烘焙后的公共键**定一个能覆盖所有
+# 候选的通名。各模组自己的实体名保持不动，带 translation key / 中文烘焙名的
+# 另外几种形态仍会生成各自的精确译名。
+BAKED_NAME_OVERRIDES = {
+    'Abyss Blast Trophy': '深渊冲击波奖杯',
+    'Amber Bee Trophy': '琥珀蜜蜂奖杯',
+    'Ball Lightning Trophy': '球状闪电奖杯',
+    'Ball lightning Trophy': '球状闪电奖杯',
+    'Boat Trophy': '船奖杯',
+    'Boat with Chest Trophy': '运输船奖杯',
+    'Bullet Trophy': '子弹奖杯',
+    'Chaos Bee Trophy': '混沌蜜蜂奖杯',
+    'Chest boat Trophy': '运输船奖杯',
+    'Echoing Strike Trophy': '回响打击奖杯',
+    'Fireball Trophy': '火球奖杯',
+    'Flame strike Trophy': '烈焰轰击奖杯',
+    'Ice Crystal Trophy': '冰晶奖杯',
+    'Ice Spike Trophy': '冰霜尖刺奖杯',
+    'Ice crystal Trophy': '冰晶奖杯',
+    'Ice spike Trophy': '冰霜尖刺奖杯',
+    'Item frame Trophy': '物品展示框奖杯',
+    'Mimic Trophy': '宝箱怪奖杯',
+    'Sentry Trophy': '哨石奖杯',
+    'Sheep Trophy': '绵羊奖杯',
+    'Skeleton Trophy': '骷髅奖杯',
+    'Slider Trophy': '滑块奖杯',
+    'Spear Trophy': '矛奖杯',
+    'Summoned Skeleton Trophy': '召唤骷髅奖杯',
+    'Summoned Vex Trophy': '召唤恼鬼奖杯',
+    'Troll Trophy': '巨魔奖杯',
+}
+
 
 def id_to_name(entity_id):
     """复刻 TrophyManager.idToName：冒号后首字母大写，其余 `_` 换空格。"""
@@ -96,12 +130,16 @@ def id_to_name(entity_id):
 def scan(instance):
     inst = Path(instance)
     mcroot = inst.parent.parent          # …/.minecraft
-    jar_en, jar_zh, pack_zh = {}, {}, {}
+    jar_en, jar_zh, pack_zh, kube_zh = {}, {}, {}, {}
+    pack_sources = {}
+    jar_namespaces = set()
 
-    def take(data, sink):
+    def take(data, sink, source=None):
         for k, v in data.items():
             if isinstance(v, str) and SUBKEY_RE.match(k):
                 sink.setdefault(k, v)
+                if source:
+                    pack_sources.setdefault(k, set()).add(source)
 
     def load(raw):
         try:
@@ -118,6 +156,9 @@ def scan(instance):
             for n in zf.namelist():
                 if not n.startswith('assets/'):
                     continue
+                parts = n.split('/', 2)
+                if len(parts) == 3 and parts[1]:
+                    jar_namespaces.add(parts[1])
                 if n.endswith('/lang/en_us.json'):
                     take(load(zf.read(n)), jar_en)
                 elif n.endswith('/lang/zh_cn.json'):
@@ -127,10 +168,15 @@ def scan(instance):
     take(vanilla.client_en(inst), jar_en)
     take(vanilla.client_zh(inst), jar_zh)
 
-    # 本包（资源包 + kubejs 覆盖）优先级最高
-    for base in (PACK, COMMON / 'kubejs' / 'assets'):
-        for p in base.rglob('lang/zh_cn.json'):
-            take(json.loads(p.read_text(encoding='utf-8')), pack_zh)
+    # 本包与 KubeJS 分开收：资源包会保留未安装模组的备用译文，不能直接证明实体存在；
+    # KubeJS 则确实能定义 jar 里没有的实体键。资源包按文件所在 assets 命名空间
+    # 记来源，不能只看键内命名空间：村民职业常写成 entity.minecraft.villager.<modid>.*。
+    for p in PACK.rglob('lang/zh_cn.json'):
+        rel = p.relative_to(PACK).parts
+        source = rel[1] if len(rel) > 1 and rel[0] == 'assets' else None
+        take(json.loads(p.read_text(encoding='utf-8')), pack_zh, source)
+    for p in (COMMON / 'kubejs' / 'assets').rglob('lang/zh_cn.json'):
+        take(json.loads(p.read_text(encoding='utf-8')), kube_zh)
 
     # 组合式实体名模板：`entity.<ns>.name` = "Shiny %s" 这种，实体的显示名是
     # 模板 + 一个参数拼出来的，参数常常是**没翻译的注册名**（实测 Shiny 的奖杯
@@ -139,11 +185,20 @@ def scan(instance):
     for key, en in jar_en.items():
         m = re.match(r'^entity\.([a-z0-9_-]+)\.name$', key)
         if m and en.count('%s') == 1:
-            tmpl[m.group(1)] = {'en': en, 'zh': pack_zh.get(key) or jar_zh.get(key)}
+            tmpl[m.group(1)] = {
+                'en': en,
+                'zh': pack_zh.get(key) or kube_zh.get(key) or jar_zh.get(key),
+            }
 
-    # 键的全集：只扫 jar_en 会漏掉「模组自己不出 en_us、由本包补的」实体
+    # 键的全集：已安装模组可以由本包补实体键，但未安装模组的备用译文不能混入。
+    # 只看 jar 语言键会漏掉 shiny 这类由本包补齐大量实体名的已安装模组，所以用
+    # jar 内实际出现过的 assets 命名空间作为存在性边界。
     snap = {}
-    for key in sorted(set(jar_en) | set(jar_zh) | set(pack_zh)):
+    installed = set(jar_en) | set(jar_zh) | set(kube_zh)
+    for key, sources in pack_sources.items():
+        if sources & jar_namespaces:
+            installed.add(key)
+    for key in sorted(installed):
         m = KEY_RE.match(key)
         sub = m is None
         if sub:
@@ -154,7 +209,7 @@ def scan(instance):
         if eid in SKIP_IDS:
             continue
         en = jar_en.get(key)
-        zh = pack_zh.get(key) or jar_zh.get(key)
+        zh = pack_zh.get(key) or kube_zh.get(key) or jar_zh.get(key)
         if not zh or zh == en:
             continue                      # 没中文 / 中文就是英文 → 没得翻
         if SENTENCEY.search(zh) or len(zh) > MAX_NAME_LEN:
@@ -210,10 +265,13 @@ def build(snap):
             if form:
                 cand.setdefault(form + ' Trophy', {}).setdefault(val, set()).add(eid)
 
-    out, dropped = {}, []
+    out, dropped, resolved = {}, [], []
     for name, vals in cand.items():
         if len(vals) == 1:
             out[name] = next(iter(vals))
+        elif name in BAKED_NAME_OVERRIDES:
+            out[name] = BAKED_NAME_OVERRIDES[name]
+            resolved.append(name)
         else:
             dropped.append((name, sorted(vals)))
 
@@ -221,6 +279,8 @@ def build(snap):
     OUT.write_text(json.dumps(dict(sorted(out.items())), ensure_ascii=False,
                               indent=2) + '\n', encoding='utf-8')
     print('生成: %d 条 -> %s' % (len(out), OUT.relative_to(ROOT)))
+    if resolved:
+        print('同名烘焙键统一 %d 条（实体 ID 已丢失，采用公共通名）' % len(resolved))
     if dropped:
         print('歧义丢弃 %d 条（多个实体撞同一串烘焙名且译名不同）：' % len(dropped))
         for name, vals in sorted(dropped)[:20]:
