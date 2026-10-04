@@ -13,6 +13,9 @@ on:
       upstream_tag:
         description: '上游簡體版的 release tag（例：vr26）'
         required: true
+      mc_versions:
+        description: '要出的整合包版本，空白分隔。只出實機驗證過的版本（目前 8.1）'
+        default: '8.1'
       fill_from_mods:
         description: '用各版模組 jar 自帶的 zh_cn 補位（Minecraft 的 zh_tw 不會回退到 zh_cn）'
         type: boolean
@@ -31,6 +34,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       TAG: ${{ inputs.upstream_tag }}
+      MC_VERSIONS: ${{ inputs.mc_versions }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -62,9 +66,12 @@ jobs:
           set -euo pipefail
           UP=$(python -c "import json;print(json.load(open('src/zh_tw/config.json'))['upstream_repo'])")
           mkdir -p upstream
-          gh release download "$TAG" -R "$UP" -p 'atm10-zh_cn-*.zip' -D upstream
+          for mc in $MC_VERSIONS; do
+            gh release download "$TAG" -R "$UP" -p "atm10-zh_cn-*-atm${mc}.zip" -D upstream
+            [ "$(ls upstream/*-atm${mc}.zip 2>/dev/null | wc -l)" -eq 2 ] \
+              || { echo "❌ 上游 $TAG 沒有 ${mc} 的 client + server 兩個 zip"; exit 1; }
+          done
           ls -la upstream
-          [ "$(ls upstream/*.zip | wc -l)" -ge 2 ] || { echo "❌ 上游 $TAG 沒有簡體 zip"; exit 1; }
 
       - name: 轉換
         run: |
