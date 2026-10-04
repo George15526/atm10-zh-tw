@@ -129,7 +129,8 @@ SKELETON_EXEMPT = re.compile(
     r'|(^|/)config/fancymenu/customization/title_screen_layout\.txt$'
     r'|(^|/)kubejs/client_scripts/hanhua_(pack|update)_check\.js$'
     r'|(^|/)kubejs/(client|server)_scripts/pb_hanhua_[^/]*\.js$')
-CJK_ALL = re.compile('[\u3400-\u9fff\uf900-\ufaff\U00020000-\U0003134f]')
+# \u5f15\u865f\u4e5f\u4e00\u4f75\u62ff\u6389\uff1a\u201c\u2026\u201d \u2192 \u300c\u2026\u300d \u662f\u523b\u610f\u7684\uff08converter.taiwan_quotes\uff09\uff0c\u4e0d\u662f\u9aa8\u67b6\u88ab\u52d5\u5230
+CJK_ALL = re.compile('[\u3400-\u9fff\uf900-\ufaff\U00020000-\U0003134f\u201c\u201d\u2018\u2019\u300c\u300d\u300e\u300f]')
 
 
 def _flat(zpath):

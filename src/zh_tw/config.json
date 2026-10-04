@@ -39,7 +39,5 @@
   "serif": {"file": "serif.otf", "url": "https://raw.githubusercontent.com/notofonts/noto-cjk/Serif2.003/Serif/SubsetOTF/TC/NotoSerifTC-Black.otf", "sha256": "55c68df309e702cdb56b9ffd6b8185468afc0cb070aa9c2f14099de0cae64d12"},
   "pixel-10": {"file": "pixel-10.ttf", "url": "https://github.com/TakWolf/fusion-pixel-font/releases/download/2026.07.20/fusion-pixel-font-10px-proportional-ttf-v2026.07.20.zip", "member": "fusion-pixel-10px-proportional-zh_hant.ttf", "sha256": "c7daba1a814c0d9f9a56809deea294083daebc1476062bcba24d374d4a05b9b5"},
   "pixel-12": {"file": "pixel-12.ttf", "url": "https://github.com/TakWolf/fusion-pixel-font/releases/download/2026.07.20/fusion-pixel-font-12px-proportional-ttf-v2026.07.20.zip", "member": "fusion-pixel-12px-proportional-zh_hant.ttf", "sha256": "3462877948294744c4edf8c765354f326d227f58c1b9e8087543137ea8d0e737"}
- },
-
- "readme_notice": "> **繁體中文（台灣）版**：本包由簡體版「ATM10 漢化補丁·綠油油版」（chiba233/atm10-zh-cn）在構建時轉換而來，專有名詞依 Minecraft 原版官方繁體（台灣）譯名校準。繁體版的問題請回報到 https://github.com/George15526/atm10-zh-tw/issues 。\n\n"
+ }
 }

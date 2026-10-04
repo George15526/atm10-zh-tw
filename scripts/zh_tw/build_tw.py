@@ -70,6 +70,7 @@ class Ctx:
         self.stats = {'lang_keys': 0, 'lang_vanilla': 0, 'lang_override': 0,
                       'lang_fill': 0, 'text_files': 0, 'binary_files': 0, 'fixups': 0}
         self.cjk_images = []
+        self.side = self.mc = None        # client/server、整合包版本（convert_zip 依檔名填）
         self.banners = None               # gen_banners_tw.py 的產物目錄
         self.entity_names = {}            # 實體顯示名 cn → tw，給奖杯鍵用（見 _convert_key）
 
@@ -197,6 +198,7 @@ def _repo(text, rel, ctx):
 
 def _installer(text, rel, ctx):
     text = _repo(text, rel, ctx)
+    text = _sub_exact(text, '汉化补丁 · 绿油油版 — 安装器', '繁體中文漢化包 — 安裝器', rel, expect=1)
     # 安裝器裡的 zh_cn 全是路徑／檔名／options.txt 的 lang 值，沒有別的語意
     return _sub_exact(text, 'zh_cn', 'zh_tw', rel)
 
@@ -211,8 +213,21 @@ def _vp_config(text, rel, ctx):
                       rel, expect=1)
 
 
-def _readme(text, rel, ctx):
-    return ctx.cfg['readme_notice'] + text
+def package_readme(raw, ctx):
+    """包內說明換成繁體版自己寫的（src/zh_tw/package/README.<side>.md），不轉換上游那份：
+    上游的是「簡體漢化補丁」的說明，轉成繁體字也還是在講簡體包。
+    NeoForge 版本從上游那份（已由 build_dist.sh 填好）讀，讀不到就報錯，不寫錯的版本號。"""
+    up = raw.decode('utf-8-sig')
+    m = (re.search(r'NeoForge\s*\*{0,2}\s*(\d+\.\d+\.\d+)', up)
+         or re.search(r'\*\*%s\*\*\s*\|\s*(\d+\.\d+\.\d+)' % re.escape(ctx.mc), up))
+    if not m:
+        raise SystemExit(f'❌ 從上游說明讀不到 {ctx.mc} 的 NeoForge 版本，上游說明格式可能變了')
+    tpl = (SRC_TW / 'package' / f'README.{ctx.side}.md').read_text(encoding='utf-8')
+    out = (tpl.replace('@@MCVER@@', ctx.mc).replace('@@NEOFORGE@@', m.group(1))
+              .replace('@@REPO@@', ctx.cfg['repo']))
+    if '@@' in out:
+        raise SystemExit(f'❌ README.{ctx.side}.md 有沒填到的佔位符')
+    return out.encode('utf-8')
 
 
 # (路徑比對, 轉換「前」套用的修正)。修正在簡體原文上做，之後才整檔轉換。
@@ -223,7 +238,6 @@ FIXUPS = [
     (re.compile(r'(^|/)config/fancymenu/customization/title_screen_layout\.txt$'), _repo),
     (re.compile(r'\.url$'), _repo),
     (re.compile(r'(^|/)config/vaultpatcher_asm/config\.json$'), _vp_config),
-    (re.compile(r'(^|/)请安装前务必看我\.md$'), _readme),
 ]
 
 # 資源蜂腳本裡這兩張表的鍵是「拿來比對的既有名字」：
@@ -272,6 +286,9 @@ def _convert_mcmeta(raw, rel, ctx):
 
 def process_file(src, rel, ctx):
     raw = src.read_bytes()
+    if rel == '请安装前务必看我.md':
+        ctx.stats['fixups'] += 1
+        return package_readme(raw, ctx)
     m = LANG_RE.match(rel)
     if m:
         return convert_lang(raw, m.group(1), ctx)
@@ -347,6 +364,10 @@ def convert_zip(zpath, out_dir, ctx, work):
     if 'zh_cn' not in name:
         raise SystemExit(f'❌ 不是簡體出貨包：{name}')
     out_name = name.replace('zh_cn', 'zh_tw')
+    m = re.search(r'-(client|server)-.*-atm([0-9.]+)\.zip$', name)
+    if not m:
+        raise SystemExit(f'❌ 檔名看不出 client/server 與整合包版本：{name}')
+    ctx.side, ctx.mc = m.group(1), m.group(2)
     stage_in = work / ('in-' + name)
     stage_out = work / ('out-' + name)
     with zipfile.ZipFile(zpath) as z:
@@ -439,7 +460,12 @@ def collect_mod_fill(mods_dir, pack_zip):
                     continue
                 have = pack.get(ns, {})
                 for k, v in cn.items():
-                    if k in have or k in tw or not isinstance(v, str) or k.startswith('/'):
+                    if k in have or not isinstance(v, str) or k.startswith('/'):
+                        continue
+                    # 模組自帶 zh_tw 只有在「真的譯了」時才尊重。不少模組的 zh_tw 是把 en_us
+                    # 整份拷過去當佔位（ExplorersCompass 的 zh_tw 寫的就是「Explorer's Compass」），
+                    # 照單全收的話，zh_cn 明明有「结构罗盘」，繁體玩家卻看到英文。
+                    if isinstance(tw.get(k), str) and CJK.search(tw[k]):
                         continue
                     if not CJK.search(v):
                         continue

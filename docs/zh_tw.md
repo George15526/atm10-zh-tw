@@ -27,7 +27,9 @@ src/ → build/ → dist/atm10-zh_cn-*.zip ──► scripts/zh_tw/build_tw.py �
 | `scripts/zh_tw/fetch_fonts_tw.py` | 取五個繁體（台灣字形）字型並核雜湊 |
 | `src/zh_tw/terms.json` | 台灣用語詞表、上下文規則、放行詞 |
 | `src/zh_tw/overrides.json` | 逐鍵人工覆寫（優先於一切） |
-| `src/zh_tw/config.json` | 本倉庫網址、中文檔名對照、語言定義 |
+| `src/zh_tw/config.json` | 本倉庫網址、中文檔名對照、語言定義、按鈕文字、字型 |
+| `src/zh_tw/package/README.{client,server}.md` | 包內「請安裝前務必看我.md」（繁體版自己的說明，不轉換上游那份） |
+| `.github/README.md` | GitHub 首頁說明（GitHub 優先顯示它；根目錄的 README.md 是上游的，不動以免合併衝突） |
 | `requirements-zh_tw.lock` | OpenCC（釘版本與雜湊） |
 | `.github/workflows/zh_tw.yml` | 由上游 release 轉出繁體包 |
 
@@ -64,6 +66,7 @@ python scripts/zh_tw/check_tw.py dist/atm10-zh_tw-*.zip --against upstream/atm10
 4. **OpenCC s2twp**：只吃**非 ASCII 片段**——它的詞庫有中英混寫的詞（B超、U盘），
    會吃掉色碼 `&#4497DB` 的字母。
 5. **字形統一**（`post_chars`）：臺 → 台、箇 → 個。
+6. **引號**：中文語境裡成對的 “…” ‘…’ → 「…」 『…』（`converter.taiwan_quotes`）；英文撇號與不成對的引號不動。
 
 語言檔另外有兩層更優先的：`overrides.json` 的逐鍵覆寫，以及「值與原版 zh_cn 相同的原版鍵直接取官方 zh_tw」。
 

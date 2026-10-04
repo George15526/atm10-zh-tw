@@ -117,8 +117,36 @@ class Converter:
         out = _NON_ASCII_RUN.sub(lambda m: self._cc.convert(m.group(0)), masked)
         out = out.translate(self._post_tbl)
         out = _PUA_RE.sub(lambda m: slots[ord(m.group(0)) - _PUA_BASE], out)
+        out = taiwan_quotes(out)
         self._cache[text] = out
         return out
+
+
+_HAN = '[㐀-鿿豈-﫿　-〿！-～]'   # 漢字與全形標點
+_DQ = re.compile('“([^“”\n]*)”')
+_SQ = re.compile('‘([^‘’\n]*)’')
+
+
+def taiwan_quotes(s):
+    """簡中習慣的 “…” ‘…’ → 台灣慣用的 「…」 『…』。
+
+    只換成對的引號，且要確定是中文語境：
+    - 雙引號：內容有中文，或緊鄰的前後字是中文（「%s」這種夾在中文句子裡的也算）；
+    - 單引號：內容必須有中文——’ 同時是英文撇號（Explorer’s），不能憑鄰字判斷。
+    不成對的（原文少打一邊）不動，免得配錯對。
+    """
+    if '“' not in s and '‘' not in s:
+        return s
+
+    def dq(m):
+        before = s[m.start() - 1] if m.start() else ''
+        after = s[m.end()] if m.end() < len(s) else ''
+        if re.search(_HAN, m.group(1)) or re.match(_HAN, before) or re.match(_HAN, after):
+            return '「' + m.group(1) + '」'
+        return m.group(0)
+
+    s = _DQ.sub(dq, s)
+    return _SQ.sub(lambda m: '『' + m.group(1) + '』' if re.search(_HAN, m.group(1)) else m.group(0), s)
 
 
 def build_name_dict(conv, vanilla_cn, vanilla_tw, exclude, extra=()):
