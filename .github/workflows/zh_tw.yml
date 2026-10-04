@@ -78,6 +78,9 @@ jobs:
               fill=(--mods "pack-$mc/mods")
             fi
             python scripts/zh_tw/build_tw.py "$z" --out dist --banners build/zh_tw/questpics "${fill[@]}"
+            # 每版約 480 個 jar，七個版本全留著會撐爆 runner 的磁碟（約 14 GB），轉完就刪
+            if [[ "$z" == *-client-* ]]; then rm -rf "pack-$mc"; fi
+            df -h . | tail -1
           done
 
       - name: 閘門（殘留簡體字 + 骨架不變）
