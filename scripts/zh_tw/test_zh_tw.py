@@ -17,6 +17,8 @@
 | 色碼被改的包 | 骨架對照必須紅 |
 | 取不到原版 zh_tw | 判據不在時閘門必須紅，不許放行 |
 | 上游改了安裝器（找不到要換的字串） | 特別處理必須報錯，不許靜默略過 |
+| 上游加了新版才有的橫幅（8.3 的 caddon_*） | 舊版沒這張圖時略過，章節引用了卻缺圖照樣紅 |
+| 橫幅原圖目錄或章節檔取不到 | 必須紅，不許把全部橫幅當「這版沒有」跳過 |
 
 用法:
     python3 scripts/zh_tw/test_zh_tw.py
@@ -36,6 +38,7 @@ sys.path.insert(0, str(HERE.parents[0]))
 
 import build_tw  # noqa: E402
 import check_tw  # noqa: E402
+import gen_banners_tw  # noqa: E402
 from converter import Converter, build_name_dict, load_terms  # noqa: E402
 
 _TERMS = load_terms()
@@ -207,6 +210,38 @@ class FixupTest(unittest.TestCase):
     def test_unknown_cjk_filename_is_red(self):
         with self.assertRaises(SystemExit):
             build_tw.rename_component('新的说明.md', self.ctx())
+
+
+class BannerTest(unittest.TestCase):
+    BANNERS = {'a.png': '甲', 'new/b.png': '乙', 'gone/c.png': '丙'}
+
+    def src(self, d, *names):
+        for n in names:
+            (d / n).parent.mkdir(parents=True, exist_ok=True)
+            (d / n).write_bytes(b'')
+        return d
+
+    def test_newer_version_banner_is_skipped(self):
+        with tempfile.TemporaryDirectory() as d:
+            src = self.src(Path(d), 'a.png')
+            keep, skip = gen_banners_tw.applicable(self.BANNERS, src, {'a.png': ['甲']})
+        self.assertEqual(set(keep), {'a.png'})
+        self.assertEqual(skip, ['gone/c.png', 'new/b.png'])
+
+    def test_referenced_but_missing_is_kept(self):
+        # 章節引用了卻沒原圖：不能跳過，留給上游 main() 報紅
+        with tempfile.TemporaryDirectory() as d:
+            src = self.src(Path(d), 'a.png')
+            keep, _ = gen_banners_tw.applicable(self.BANNERS, src, {'a.png': [], 'new/b.png': []})
+        self.assertIn('new/b.png', keep)
+
+    def test_no_source_dir_is_red(self):
+        with tempfile.TemporaryDirectory() as d, self.assertRaises(SystemExit):
+            gen_banners_tw.applicable(self.BANNERS, Path(d) / 'missing', {'a.png': []})
+
+    def test_no_chapters_is_red(self):
+        with tempfile.TemporaryDirectory() as d, self.assertRaises(SystemExit):
+            gen_banners_tw.applicable(self.BANNERS, Path(d), {})
 
 
 if __name__ == '__main__':

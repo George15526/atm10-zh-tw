@@ -35,6 +35,27 @@ from converter import Converter, build_name_dict, load_terms  # noqa: E402
 OUT = ROOT / 'build' / 'zh_tw' / 'questpics'
 
 
+def applicable(banners, src, titles):
+    """→ (這一版要畫的, 跳過的)。
+
+    上游的 BANNERS 跟著最新版走（8.3 新增「機械動力附屬」章的 create/caddon_*），
+    繁體版對著較舊的版本重繪時，那幾張原圖本來就不存在。只跳過「原圖不在、
+    章節檔也沒引用」的——章節引用了卻找不到原圖，照樣留給上游的 main() 報紅。
+    原圖目錄或章節檔整個取不到時直接紅，不然會把全部橫幅當成「這版沒有」跳過。
+    """
+    if not src.is_dir():
+        sys.exit('❌ 找不到原圖目錄 %s' % src)
+    if not titles:
+        sys.exit('❌ 章節檔裡找不到任何橫幅引用，ATM_PACK_ROOT 多半指錯了')
+    keep, skip = {}, []
+    for rel, text in banners.items():
+        if (src / rel).exists() or rel in titles:
+            keep[rel] = text
+        else:
+            skip.append(rel)
+    return keep, sorted(skip)
+
+
 def main():
     if not os.environ.get('ATM_PACK_ROOT'):
         sys.exit('❌ 請設 ATM_PACK_ROOT 指向整合包（或 fetch_pack.py --no-jars 取的目錄）')
@@ -50,7 +71,10 @@ def main():
                          for s in gqb.PIXEL_SIZES if gqb.pixel_face(s)}
     if set(gqb.PIXEL_CHARSET) != set(gqb.PIXEL_SIZES):
         sys.exit('❌ 繁體像素字型不全：%s' % sorted(gqb.PIXEL_CHARSET))
-    gqb.BANNERS = {rel: conv.convert(text) for rel, text in gqb.BANNERS.items()}
+    banners, skip = applicable(gqb.BANNERS, gqb.SRC, gqb.chapter_titles())
+    for rel in skip:
+        print('  略過 %s（這一版沒有這張圖，章節也沒引用）' % rel)
+    gqb.BANNERS = {rel: conv.convert(text) for rel, text in banners.items()}
     gqb.OUT = OUT
     gqb.main()
 
