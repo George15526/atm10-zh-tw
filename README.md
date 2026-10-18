@@ -10,7 +10,7 @@
 [![Security](https://img.shields.io/badge/Security-policy-red.svg)](./SECURITY.md)
 [![License](https://img.shields.io/badge/License-GPL--3.0-green.svg)](./LICENSE)
 
-All the Mods 10 的简体中文汉化补丁，**同时支持 7.0 / 7.1 / 7.2 / 7.3 / 8.0 / 8.1 / 8.2**，每个整合包版本一个专属包。
+All the Mods 10 的简体中文汉化补丁，**同时支持 7.0 / 7.1 / 7.2 / 7.3 / 8.0 / 8.1 / 8.2 / 8.3**，每个整合包版本一个专属包。
 
 > **装这一个就够。** 语言文件 18.4 万余条、任务书、19 本模组手册、467 种蜂、
 > 799 条结构名、201 张图片艺术字都在里面，是完整的一份，不是叠加在别家之上的补充包。
@@ -23,6 +23,7 @@ Minecraft 均为 1.21.1。**必须下载与你整合包版本对应的那个包�
 
 | 整合包版本 | NeoForge |
 |---|---|
+| All the Mods 10 **8.3** | 21.1.259 |
 | All the Mods 10 **8.2** | 21.1.251 |
 | All the Mods 10 **8.1** | 21.1.249 |
 | All the Mods 10 **8.0** | 21.1.247 |
@@ -169,3 +170,13 @@ All the Mods 10\          ← 实例根目录
 **[0xyk3r](https://github.com/0xyk3r)**（贡献者）· **BBSMC 汉化组**（早期参考）·
 **All the Mods 团队**（整合包与任务书官方中文）·
 各模组原作者与 CFPA 社区 · **Claude Fable 5**（fable5 老师，我还记得你）。
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=chiba233%2Fatm10-zh-cn&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=chiba233/atm10-zh-cn&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=chiba233/atm10-zh-cn&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=chiba233/atm10-zh-cn&type=date&legend=top-left" />
+ </picture>
+</a>
