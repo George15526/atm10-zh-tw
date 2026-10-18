@@ -41,6 +41,7 @@ git fetch upstream && git merge upstream/main
 ```
 
 上游發新版後，Actions → `zh_tw` → 填上游 tag（例 `vr27`）即可產出繁體包。
+預設只出 **8.1**（`mc_versions`）：只發布實機驗證過的版本。要加版本，先在本地轉出來實測，再把版本號加進執行參數。
 本地也可以：
 
 ```bash
