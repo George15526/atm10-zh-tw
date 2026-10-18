@@ -1,20 +1,23 @@
 # 繁體中文（台灣）版：開發說明
 
-本倉庫 fork 自 [chiba233/atm10-zh-cn](https://github.com/chiba233/atm10-zh-cn)（簡體版），
-另外出一套**繁體中文（台灣）**包。
+本倉庫以 [chiba233/atm10-zh-cn](https://github.com/chiba233/atm10-zh-cn)（簡體版）為基礎，
+出**繁體中文（台灣）**包，並定期合併上游的更新。
 
-## 原則：簡體仍是唯一真源
+## 原則：譯文只存簡體一份
 
-繁體**不在 `src/` 裡另存一份**，而是在出包時由簡體 zip 現轉：
+繁體**不在 `src/` 裡另存一份**。出包時先用本倉庫的 `src/` 建出簡體 zip，再現轉成繁體：
 
 ```
-上游簡體管線（完全不改）           繁體層（只有本 fork 有）
+簡體管線（build.yml）                    繁體層（zh_tw.yml）
 src/ → build/ → dist/atm10-zh_cn-*.zip ──► scripts/zh_tw/build_tw.py ──► dist/atm10-zh_tw-*.zip
                                               ▲
                               src/zh_tw/terms.json、overrides.json、config.json
 ```
 
-所以合併上游時，衝突面只有本 fork 新增的檔案：
+譯文的修正寫進 `src/` 的簡體檔案，下次出包就會進繁體包，不必等上游發版。
+能讓簡體版也受益的修正，另外送 PR 給上游。
+
+繁體層只在下面這些新增的檔案裡，合併上游時不會衝突：
 
 | 路徑 | 用途 |
 |---|---|
@@ -31,7 +34,7 @@ src/ → build/ → dist/atm10-zh_cn-*.zip ──► scripts/zh_tw/build_tw.py �
 | `src/zh_tw/package/README.{client,server}.md` | 包內「請安裝前務必看我.md」（繁體版自己的說明，不轉換上游那份） |
 | `.github/README.md` | GitHub 首頁說明（GitHub 優先顯示它；根目錄的 README.md 是上游的，不動以免合併衝突） |
 | `requirements-zh_tw.lock` | OpenCC（釘版本與雜湊） |
-| `.github/workflows/zh_tw.yml` | 由上游 release 轉出繁體包 |
+| `.github/workflows/zh_tw.yml` | 呼叫 `build.yml` 建出簡體包，再轉出繁體包 |
 
 ## 同步上游
 
@@ -40,21 +43,26 @@ git remote add upstream https://github.com/chiba233/atm10-zh-cn.git   # 只需�
 git fetch upstream && git merge upstream/main
 ```
 
-上游發新版後，Actions → `zh_tw` → 填上游 tag（例 `vr27`）即可產出繁體包。
+本倉庫改了上游的兩個檔案，合併時這兩處可能衝突：
+- `build.yml` 多了 `workflow_call` 觸發，給 `zh_tw.yml` 呼叫。
+- `release.yml` 拿掉了 tag 觸發，避免推 tag 時發出簡體包。
+
+出包：Actions → `zh_tw` → 填版本號。版本號寫成「合併到的上游版本 + 本倉庫的修正次數」，
+例如合併到上游 `vr26` 之後的第一次出包是 `r26.1`，release 的 tag 是 `vr26.1`。
+遊戲內的更新提示認得這種寫法，`vr26.1` 比 `vr26` 新。
 預設只出 **8.1**（`mc_versions`）：只發布實機驗證過的版本。要加版本，先在本地轉出來實測，再把版本號加進執行參數。
 本地也可以：
 
 ```bash
 python -m pip install --require-hashes -r requirements-zh_tw.lock -r requirements.lock
 python scripts/zh_tw/fetch_fonts_tw.py
-gh release download vr26 -R chiba233/atm10-zh-cn -p 'atm10-zh_cn-*.zip' -D upstream
+./scripts/fetch_fonts.sh && ATM_PACK_ROOT=<整合包目錄> ./scripts/generate_all.sh
+./scripts/build_dist.sh r26.1 8.1                                     # → dist/atm10-zh_cn-*.zip
 python scripts/fetch_pack.py 8.1 build/packsrc/8.1 --no-jars          # 橫幅原圖
 ATM_PACK_ROOT=build/packsrc/8.1 python scripts/zh_tw/gen_banners_tw.py   # → build/zh_tw/questpics/
-python scripts/zh_tw/build_tw.py upstream/atm10-zh_cn-*.zip --out dist --banners build/zh_tw/questpics [--mods <整合包>/mods]
-python scripts/zh_tw/check_tw.py dist/atm10-zh_tw-*.zip --against upstream/atm10-zh_cn-*.zip
+python scripts/zh_tw/build_tw.py dist/atm10-zh_cn-*.zip --out dist --banners build/zh_tw/questpics [--mods <整合包>/mods]
+python scripts/zh_tw/check_tw.py dist/atm10-zh_tw-*.zip --against dist/atm10-zh_cn-*.zip
 ```
-
-自己從原始碼構建簡體時（`scripts/build_dist.sh`），把它的產物 `dist/atm10-zh_cn-*.zip` 餵給 `build_tw.py` 即可。
 
 ## 轉換順序
 

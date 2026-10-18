@@ -1,17 +1,16 @@
 # atm10-zh-tw — 繁體中文（台灣）版出包
 #
-# 吃上游（chiba233/atm10-zh-cn）已發布的簡體 zip，轉成繁體 zip。
-# 簡體的整條管線完全不碰，所以上游改了哪個生成器，這裡自動跟著吃到；
-# 本檔是上游沒有的檔案，合併上游時不會衝突。
+# 先呼叫 build.yml，從本倉庫的 src/ 建出簡體 zip，再轉成繁體 zip。
+# 本倉庫在 src/ 的修正因此直接進繁體包，不必等上游發版。
 #
-# 手動觸發：Actions → zh_tw → Run workflow，填上游的 tag（例：vr26）。
+# 手動觸發：Actions → zh_tw → Run workflow，填版本號（例：r26.1）。
 name: zh_tw
 
 on:
   workflow_dispatch:
     inputs:
-      upstream_tag:
-        description: '上游簡體版的 release tag（例：vr26）'
+      version:
+        description: '繁體包版本號：合併到的上游版本 + 本倉庫的修正次數（例：r26.1）'
         required: true
       mc_versions:
         description: '要出的整合包版本，空白分隔。只出實機驗證過的版本（目前 8.1）'
@@ -21,7 +20,7 @@ on:
         type: boolean
         default: true
       publish:
-        description: '在本倉庫建立同名 release 並上傳繁體包'
+        description: '建立 release（tag 為 v<版本號>）並上傳繁體包'
         type: boolean
         default: false
 
@@ -29,11 +28,18 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  simplified:
+    uses: ./.github/workflows/build.yml
+    with:
+      patch_version: ${{ inputs.version }}
+      targets: ${{ inputs.mc_versions }}
+
+  tw:
+    needs: simplified
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
-      TAG: ${{ inputs.upstream_tag }}
+      TAG: v${{ inputs.version }}
       MC_VERSIONS: ${{ inputs.mc_versions }}
     steps:
       - uses: actions/checkout@v4
@@ -61,23 +67,25 @@ jobs:
       - name: 反例測試
         run: python scripts/zh_tw/test_zh_tw.py
 
-      - name: 取上游簡體包
+      - uses: actions/download-artifact@v4
+        with:
+          name: atm10-zh_cn-${{ inputs.version }}
+          path: zh_cn
+
+      - name: 核對簡體包
         run: |
           set -euo pipefail
-          UP=$(python -c "import json;print(json.load(open('src/zh_tw/config.json'))['upstream_repo'])")
-          mkdir -p upstream
           for mc in $MC_VERSIONS; do
-            gh release download "$TAG" -R "$UP" -p "atm10-zh_cn-*-atm${mc}.zip" -D upstream
-            [ "$(ls upstream/*-atm${mc}.zip 2>/dev/null | wc -l)" -eq 2 ] \
-              || { echo "❌ 上游 $TAG 沒有 ${mc} 的 client + server 兩個 zip"; exit 1; }
+            [ "$(ls zh_cn/*-atm${mc}.zip 2>/dev/null | wc -l)" -eq 2 ] \
+              || { echo "❌ 簡體建包沒有產出 ${mc} 的 client + server 兩個 zip"; exit 1; }
           done
-          ls -la upstream
+          ls -la zh_cn
 
       - name: 轉換
         run: |
           set -euo pipefail
           mkdir -p dist
-          for z in upstream/atm10-zh_cn-*.zip; do
+          for z in zh_cn/atm10-zh_cn-*.zip; do
             mc=$(basename "$z" | sed -E 's/.*-atm([0-9.]+)\.zip$/\1/')
             fill=()
             if [ "${{ inputs.fill_from_mods }}" = "true" ] && [[ "$z" == *-client-* ]]; then
@@ -91,11 +99,11 @@ jobs:
           done
 
       - name: 閘門（殘留簡體字 + 骨架不變）
-        run: python scripts/zh_tw/check_tw.py dist/atm10-zh_tw-*.zip --against upstream/atm10-zh_cn-*.zip
+        run: python scripts/zh_tw/check_tw.py dist/atm10-zh_tw-*.zip --against zh_cn/atm10-zh_cn-*.zip
 
       - uses: actions/upload-artifact@v4
         with:
-          name: atm10-zh_tw-${{ inputs.upstream_tag }}
+          name: atm10-zh_tw-${{ inputs.version }}
           path: dist/atm10-zh_tw-*.zip
 
       - name: 發布
@@ -104,4 +112,4 @@ jobs:
           set -euo pipefail
           gh release create "$TAG" dist/atm10-zh_tw-*.zip \
             --title "ATM10 繁體中文（台灣）版 $TAG" \
-            --notes "由上游簡體版 $TAG 轉換。安裝方式見包內「請安裝前務必看我.md」。"
+            --notes "安裝方式見包內「請安裝前務必看我.md」。"
