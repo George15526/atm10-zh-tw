@@ -1,5 +1,5 @@
 {
- "_说明": "「粉碎和富集矿石块」等任务的三个任务物品是 ftbfiltersystem:smart_filter，名字（Crushers／Enrichers／Smelters）写死在物品的 minecraft:custom_name 组件里，不走任务书语言键，只能改章节文件本身。每个过滤器匹配一台机器加四级工厂，译名据此写成「机器或工厂」，机器名取自 mekanism 的物品真名。",
+ "_说明": "「粉碎和富集矿石块」等任务的任务物品是 ftbfiltersystem:smart_filter，名字（Crushers／Enrichers／Smelters／Purifiers）写死在物品的 minecraft:custom_name 组件里，不走任务书语言键，只能改章节文件本身。每个过滤器匹配一台机器加四级工厂，译名据此写成「机器或工厂」，机器名取自 mekanism 的物品真名。Purificaters 是整合包原文把 Purifiers 拼错了，两个过滤器匹配同一组机器，用同一个译名。",
  "src": "config/ftbquests/quests/chapters/mekanism.snbt",
  "edits": [
   {
@@ -26,6 +26,24 @@
    ],
    "replace": [
     "\t\t\t\t\titem: { components: { \"ftbfiltersystem:filter\": \"or(item(mekanism:energized_smelter)item(mekanism:basic_smelting_factory)item(mekanism:advanced_smelting_factory)item(mekanism:elite_smelting_factory)item(mekanism:ultimate_smelting_factory))\", \"minecraft:custom_name\": \"\\\"电力熔炼炉或熔炼工厂\\\"\" }, count: 1, id: \"ftbfiltersystem:smart_filter\" }\n"
+   ],
+   "all": true
+  },
+  {
+   "find": [
+    "\t\t\t\t\titem: { components: { \"ftbfiltersystem:filter\": \"or(item(mekanism:purification_chamber)item(mekanism:basic_purifying_factory)item(mekanism:advanced_purifying_factory)item(mekanism:elite_purifying_factory)item(mekanism:ultimate_purifying_factory))\", \"minecraft:custom_name\": \"\\\"Purifiers\\\"\" }, count: 1, id: \"ftbfiltersystem:smart_filter\" }\n"
+   ],
+   "replace": [
+    "\t\t\t\t\titem: { components: { \"ftbfiltersystem:filter\": \"or(item(mekanism:purification_chamber)item(mekanism:basic_purifying_factory)item(mekanism:advanced_purifying_factory)item(mekanism:elite_purifying_factory)item(mekanism:ultimate_purifying_factory))\", \"minecraft:custom_name\": \"\\\"提纯仓或提纯工厂\\\"\" }, count: 1, id: \"ftbfiltersystem:smart_filter\" }\n"
+   ],
+   "all": true
+  },
+  {
+   "find": [
+    "\t\t\t\t\titem: { components: { \"ftbfiltersystem:filter\": \"or(item(mekanism:purification_chamber)item(mekanism:basic_purifying_factory)item(mekanism:advanced_purifying_factory)item(mekanism:elite_purifying_factory)item(mekanism:ultimate_purifying_factory))\", \"minecraft:custom_name\": \"\\\"Purificaters\\\"\" }, count: 1, id: \"ftbfiltersystem:smart_filter\" }\n"
+   ],
+   "replace": [
+    "\t\t\t\t\titem: { components: { \"ftbfiltersystem:filter\": \"or(item(mekanism:purification_chamber)item(mekanism:basic_purifying_factory)item(mekanism:advanced_purifying_factory)item(mekanism:elite_purifying_factory)item(mekanism:ultimate_purifying_factory))\", \"minecraft:custom_name\": \"\\\"提纯仓或提纯工厂\\\"\" }, count: 1, id: \"ftbfiltersystem:smart_filter\" }\n"
    ],
    "all": true
   }
