@@ -35,12 +35,20 @@ src/ → build/ → dist/atm10-zh_cn-*.zip ──► scripts/zh_tw/build_tw.py �
 | `.github/README.md` | GitHub 首頁說明（GitHub 優先顯示它；根目錄的 README.md 是上游的，不動以免合併衝突） |
 | `requirements-zh_tw.lock` | OpenCC（釘版本與雜湊） |
 | `.github/workflows/zh_tw.yml` | 呼叫 `build.yml` 建出簡體包，再轉出繁體包 |
+| `.github/workflows/sync-upstream.yml` | 每天比對上游，有新提交就開同步 PR |
 
 ## 同步上游
 
+`sync-upstream.yml` 每天台灣時間 09:00 比對上游的 `main`，有新提交就開一個「同步上游」的 PR：
+
+- Actions 開的 PR 不會自動跑 CI。關閉再重新開啟 PR 即可觸發。
+- 合併方式選 **Create a merge commit**，不要 squash。squash 會丟掉上游的提交歷史，下次同步會在同一批改動上再衝突。
+- 上游改到 `.github/workflows/` 時，`GITHUB_TOKEN` 推不上去，會改開 issue。這時手動同步：
+
 ```bash
 git remote add upstream https://github.com/chiba233/atm10-zh-cn.git   # 只需一次
-git fetch upstream && git merge upstream/main
+git fetch upstream && git switch -c chore/sync-upstream origin/main && git merge upstream/main
+git push -u origin chore/sync-upstream                                 # 再開 PR
 ```
 
 本倉庫改了上游的兩個檔案，合併時這兩處可能衝突：
