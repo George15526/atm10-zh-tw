@@ -1,24 +1,25 @@
-<!-- 感谢贡献！Thanks for contributing! 一个 PR 只做一件事。Keep the diff focused — one concern per PR. -->
+<!-- 一個 PR 只做一件事。 -->
 
-## 改了什么 / What does this change?
+## 改了什麼
 
-<!-- 一两句话说清楚。A short, plain summary. -->
+<!-- 一到三句：先寫問題，再寫結果。 -->
 
-## 为什么 / Why
+## 依據
 
-<!-- 解决的问题，或关联的 issue。The problem it solves, or a linked issue. -->
-Closes #
+<!-- 改譯名：真源（MC百科條目頁 /item/<id>.html、CFPA、模組 jar 自帶的 zh_cn），以及這個名字的全部表面（物品名、任務書標題與描述、導覽書）。 -->
+<!-- 改流程或腳本：反例測試，或 CI 的 run 連結。 -->
 
-## 怎么验证的 / How was it verified?
+## 怎麼驗證的
 
-- [ ] `python3 scripts/check.py` 通过 / passed
-- [ ] 改了安装脚本：`python3 scripts/test_installer.py` 本地通过（CI 会在三系统再跑） / installer test passed locally (CI re-runs it on 3 OSes)
-- [ ] 进游戏实测过改动的界面/物品（附截图更好） / verified in-game (screenshot welcome)
-- [ ] 纯文档改动，无需验证 / docs-only change
+- [ ] `python3 scripts/zh_tw/test_zh_tw.py` 通過
+- [ ] zh_tw workflow 在本分支試跑通過（`publish=false`），run 連結：
+- [ ] 改了安裝腳本：`python3 scripts/test_installer.py` 通過
+- [ ] 進遊戲實測過改動的界面或物品（附截圖更好）
+- [ ] 只改文件，不需驗證
 
-## 检查项 / Checklist
+## 檢查項
 
-- [ ] 改动范围与标题一致，没夹带无关重构。 / Scope matches the title.
-- [ ] **没有翻译任何枚举协议值**（`Ignored` / `Copy` / `Move` 等模式选项，翻了会崩游戏）。 / No enum protocol values translated (they crash the game).
-- [ ] 资源包改动改在 `resourcepacks/ATM10汉化包/` 源码目录，**没有提交任何 zip**。 / Resource pack edits go in the source directory; no zips committed.
-- [ ] 用户可见改动已更新 `CHANGELOG.md`。 / CHANGELOG.md updated for user-facing changes.
+- [ ] 改動範圍與標題一致，沒有夾帶無關的改動。
+- [ ] 譯文改在 `src/` 的簡體檔案。繁體在出包時轉換，不另存一份。
+- [ ] 沒有翻譯任何列舉協議值（`Ignored`、`Copy`、`Move` 等模式選項，翻了會讓遊戲崩潰）。
+- [ ] 沒有提交任何 zip。
