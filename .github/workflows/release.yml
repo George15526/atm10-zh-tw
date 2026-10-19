@@ -7,9 +7,8 @@ name: Release
 # 仓库里没有任何一棵出货目录树：assemble.py 从 src/ 现摊、生成器现产、
 # gen_upstream_patches.py 对着**各版本官方文件**现打补丁，再由 build_dist.sh 压包。
 #
-# 触发方式：
-#   1. push tag v* —— 自动按 tag 名解析版本号、自动发布 release；
-#   2. workflow_dispatch —— Actions 页面手动触发，可选发布。
+# 触发方式：只有 workflow_dispatch。本仓库的 release 是繁体包，由 zh_tw.yml 发布。
+# 推 v* tag 不触发这里，否则同一个 tag 上会多发一份简体包。
 on:
   workflow_dispatch:
     inputs:
@@ -22,9 +21,6 @@ on:
         description: 补丁版本号，如 r12（与整合包版本无关；产物名里的 atm7.x 才是整合包版本）
         type: string
         required: false
-  push:
-    tags:
-      - 'v*'
 
 permissions:
   contents: write

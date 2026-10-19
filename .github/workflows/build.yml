@@ -23,6 +23,16 @@ on:
         description: '目标整合包版本，7.* = versions/ 下全部；也可写 7.2 或 "7.1 7.2"'
         required: false
         default: '7.*'
+  # 繁體版（zh_tw.yml）先呼叫本流程，從本倉庫的 src/ 建出簡體包，再轉成繁體。
+  workflow_call:
+    inputs:
+      patch_version:
+        type: string
+        required: true
+      targets:
+        type: string
+        required: false
+        default: '7.*'
   push:
     branches: [main]
     paths-ignore: ['**.md', 'docs/**']
@@ -104,7 +114,7 @@ jobs:
       - name: 解析要构建哪些整合包版本
         id: t
         run: |
-          IN='${{ github.event.inputs.targets }}'
+          IN='${{ inputs.targets }}'
           # 通配符只在**仓库声明过的版本**里展开，绝不去 CurseForge 现查——
           # 否则 ATM 一发新版，CI 就会自动构建一个从没验证过的包挂上去。
           if [ -z "$IN" ] || [ "$IN" = "7.*" ]; then
@@ -346,11 +356,11 @@ jobs:
         run: python3 scripts/compliance/check_minecolonies_paths.py "$ATM_PACK_ROOT/mods"
 
       - name: 打包全部版本
-        run: ./scripts/build_dist.sh "${{ github.event.inputs.patch_version || 'dev' }}" "${{ steps.t.outputs.list }}"
+        run: ./scripts/build_dist.sh "${{ inputs.patch_version || 'dev' }}" "${{ steps.t.outputs.list }}"
 
       - uses: actions/upload-artifact@v7
         with:
-          name: atm10-zh_cn-${{ github.event.inputs.patch_version || 'dev' }}
+          name: atm10-zh_cn-${{ inputs.patch_version || 'dev' }}
           path: dist/*.zip
           retention-days: 30
 
