@@ -1,7 +1,10 @@
 {
  "_why": "逐鍵人工覆寫，優先於一切自動轉換。格式：{ \"<命名空間>\": { \"<語言鍵>\": \"<繁體譯文>\" } }。只放查證過的條目，並在 _notes 裡寫出處（原版 zh_tw、模組自帶 zh_tw、巴哈姆特/Minecraft Wiki 繁中頁面等）。",
  "_notes": {
-  "mysticalagradditions": "模組 jar（MysticalAgradditions 8.0.14，fileID 8515974）自帶的 zh_tw 有中文，補位不會蓋過它，但其中 11 個名稱有錯：精華重複、殘留英文、龍鱗寫成龍蛋碎片、異體字「寳」。值取同一 jar 的 zh_cn 經本包轉換器轉成的結果。"
+  "mysticalagradditions": "模組 jar（MysticalAgradditions 8.0.14，fileID 8515974）自帶的 zh_tw 有中文，補位不會蓋過它，但其中 11 個名稱有錯：精華重複、殘留英文、龍鱗寫成龍蛋碎片、異體字「寳」。值取同一 jar 的 zh_cn 經本包轉換器轉成的結果。",
+  "explorerscompass": "模組 jar（ExplorersCompass）自帶的 zh_tw 結構名有亂碼（「Д雪村」）、詞序顛倒（「被破壞的傳送門沙漠」）、譯錯（「大河村」「海底廢墟」）。改用台灣原版 zh_tw 的地圖與進度名：海底遺跡地圖、沙漠神殿地圖、針葉林村莊地圖、堡壘遺蹟、惡地。原本就對的（終末都市、礦坑、要塞）不動。",
+  "cookingforblockheads": "模組 jar（CookingForBlockheads）自帶的 zh_tw 有 10 條意思錯或格式碼不全：「缺少廚具」寫成「包括廚具」、「缺少烤箱」寫成「當地烤箱」、烘焙進度少了 %%。按英文原文重寫，物品名照模組繁中不動。",
+  "ars_elemental": "模組 jar（ArsElemental）自帶的 zh_tw 有 5 條把 $(br) 寫成全形 $（br），1 條把 %% 寫成單獨的 %（遊戲會改顯示鍵名），3 條殘留英文（Source、debuff、Debug）。這 9 條取同一 jar 的 zh_cn 經本包轉換器轉成的結果。"
  },
  "lang": {
   "mysticalagradditions": {
@@ -16,6 +19,48 @@
    "item.mysticalagradditions.imperium_coal": "高級精華煤",
    "item.mysticalagradditions.tertium_paxel": "中級精華全能工具",
    "item.mysticalagradditions.imperium_paxel": "高級精華全能工具"
+  },
+  "explorerscompass": {
+   "structure.minecraft.ruined_portal_desert": "沙漠廢棄傳送門",
+   "structure.minecraft.ruined_portal_jungle": "叢林廢棄傳送門",
+   "structure.minecraft.ruined_portal_mountain": "山地廢棄傳送門",
+   "structure.minecraft.ruined_portal_nether": "地獄廢棄傳送門",
+   "structure.minecraft.ruined_portal_ocean": "海洋廢棄傳送門",
+   "structure.minecraft.ruined_portal_swamp": "沼澤廢棄傳送門",
+   "structure.minecraft.village_desert": "沙漠村莊",
+   "structure.minecraft.village_plains": "平原村莊",
+   "structure.minecraft.village_savanna": "莽原村莊",
+   "structure.minecraft.village_snowy": "雪原村莊",
+   "structure.minecraft.village_taiga": "針葉林村莊",
+   "structure.minecraft.monument": "海底遺跡",
+   "structure.minecraft.desert_pyramid": "沙漠神殿",
+   "structure.minecraft.mineshaft_mesa": "惡地礦坑",
+   "structure.minecraft.shipwreck_beached": "海灘沉船",
+   "structure.minecraft.buried_treasure": "埋藏的寶藏",
+   "structure.minecraft.bastion_remnant": "堡壘遺蹟"
+  },
+  "cookingforblockheads": {
+   "tooltip.cookingforblockheads.missing_tools": "缺少廚具",
+   "tooltip.cookingforblockheads.missing_ingredients": "缺少食材",
+   "tooltip.cookingforblockheads.missing_oven": "缺少烤箱",
+   "tooltip.cookingforblockheads.sort_by_hunger": "按飢餓值排列",
+   "tooltip.cookingforblockheads.toaster.description": "用魔法將麵包變成吐司。",
+   "tooltip.cookingforblockheads.kitchen_floor.description": "可以遠距離連接廚房方塊。",
+   "tooltip.cookingforblockheads.preservation_chamber.description": "防止格子中的最後一個物品被用掉。",
+   "tooltip.cookingforblockheads.click_to_smelt_stack": "Shift點擊烹飪一組",
+   "gui.cookingforblockheads.no_selection": "在右側選擇物品以檢視其食譜。",
+   "waila.cookingforblockheads.toast_progress": "烘焙中……（%s%%）"
+  },
+  "ars_elemental": {
+   "ars_elemental.page1.elemental_turrets": "附魔法術炮塔可以灌注入元素核心的力量，以賦予其一部分核心的能力。此類炮塔發射的法術會具有對應核心的增強效果；法術中若有一個對應學派的魔符，則消耗會降低65%%。",
+   "ars_elemental.page.armor_set.air": "與氣元素學派校準的盔甲套裝。每件盔甲都能強化氣元素魔符，降低其消耗，並減少所受摔落、動能、閃電等與氣相關的傷害。$(br)穿戴全套盔甲時，減少的傷害會轉換成魔力，摔落也不再那麼煩人了！",
+   "ars_elemental.page.armor_set.aqua": "與水元素學派校準的盔甲套裝。每件盔甲都能強化水元素魔符，降低其消耗，並減少所受溺水、冰凍、閃電等與水相關的傷害。$(br)穿戴全套盔甲時，減少的傷害會轉換成魔力，並能在即將溺水時補充氧氣。",
+   "ars_elemental.page.armor_set.earth": "與土元素學派校準的盔甲套裝。每件盔甲都能強化土元素魔符，降低其消耗，並減少所受飢餓、甜莓灌木叢、仙人掌、「粉碎」等與土相關的傷害。$(br)穿戴全套盔甲時，減少的傷害會轉換成魔力，並能在身處地底深處且即將飢餓時補充飢餓值。",
+   "ars_elemental.page.armor_set.fire": "與火元素學派校準的盔甲套裝。每件盔甲都能強化火元素魔符，降低其消耗，並減少所受熔岩、龍之吐息、岩漿塊等與火相關的傷害。$(br)穿戴全套盔甲時，減少的傷害會轉換成魔力，並能立即熄滅身上的火焰。",
+   "ars_elemental.page.elemental_tweaks": "安裝元素魔藝後，如下特性會生效：$(br)巫師之盾格擋時可觸發反應魔咒。$(br)召喚的閃電不會摧毀物品。$(br)以「敏感」增強的「粉碎」可以加工物品。$(br)「寒流」能對冰凍的生物造成更多傷害。$(br)「點燃」會將冰融化成水。",
+   "ars_elemental.page.air_upstream": "此方塊會產生一道向上的湧流，周圍實體會向上飄浮。潛行即會獲得緩降效果並下降。影響到實體時消耗魔源。",
+   "ars_elemental.glyph_desc.glyph_bubble_shield": "製造一面全方位防禦性護盾，消耗魔力以減少傷害。可抵擋負面效果。魔力耗盡時護盾即會消散。泡泡還能抵禦魔法燒灼。",
+   "item.ars_elemental.debug": "除錯核心"
   }
  }
 }
