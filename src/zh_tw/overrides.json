@@ -1,5 +1,21 @@
 {
  "_why": "逐鍵人工覆寫，優先於一切自動轉換。格式：{ \"<命名空間>\": { \"<語言鍵>\": \"<繁體譯文>\" } }。只放查證過的條目，並在 _notes 裡寫出處（原版 zh_tw、模組自帶 zh_tw、巴哈姆特/Minecraft Wiki 繁中頁面等）。",
- "_notes": {},
- "lang": {}
+ "_notes": {
+  "mysticalagradditions": "模組 jar（MysticalAgradditions 8.0.14，fileID 8515974）自帶的 zh_tw 有中文，補位不會蓋過它，但其中 11 個名稱有錯：精華重複、殘留英文、龍鱗寫成龍蛋碎片、異體字「寳」。值取同一 jar 的 zh_cn 經本包轉換器轉成的結果。"
+ },
+ "lang": {
+  "mysticalagradditions": {
+   "block.mysticalagradditions.insanium_gemstone_block": "究極精華寶石塊",
+   "block.mysticalagradditions.insanium_farmland": "究極耕地",
+   "block.mysticalagradditions.tertium_coal_block": "中級精華煤塊",
+   "block.mysticalagradditions.imperium_coal_block": "高級精華煤塊",
+   "item.mysticalagradditions.insanium_essence": "究極精華",
+   "item.mysticalagradditions.withering_soul": "凋零靈魂",
+   "item.mysticalagradditions.dragon_scale": "龍鱗",
+   "item.mysticalagradditions.tertium_coal": "中級精華煤",
+   "item.mysticalagradditions.imperium_coal": "高級精華煤",
+   "item.mysticalagradditions.tertium_paxel": "中級精華全能工具",
+   "item.mysticalagradditions.imperium_paxel": "高級精華全能工具"
+  }
+ }
 }

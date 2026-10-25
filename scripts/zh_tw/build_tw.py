@@ -179,6 +179,11 @@ def convert_lang(raw, ns, ctx):
         if k not in out:
             out[k] = ov.get(k, ctx.conv.convert(v))
             ctx.stats['lang_fill'] += 1
+    # 模組自帶的 zh_tw 有中文就不補位，它譯錯的鍵只能靠覆寫蓋過（資源包優先於模組）
+    for k, v in ov.items():
+        if k not in out:
+            out[k] = v
+            ctx.stats['lang_override'] += 1
     return (json.dumps(out, ensure_ascii=False, indent=2) + '\n').encode('utf-8')
 
 
@@ -384,9 +389,11 @@ def convert_zip(zpath, out_dir, ctx, work):
             z.extractall(rp_in)
         scan_entity_names(rp_in, ctx)
         process_tree(rp_in, rp_out, ctx, None)
-        # 模組自帶 zh_cn 補位裡，資源包本來沒有那個命名空間的語言檔 → 新開一份
-        for ns in sorted(list(ctx.mod_fill)):
+        # 補位或覆寫裡，資源包本來沒有那個命名空間的語言檔 → 新開一份
+        for ns in sorted(set(ctx.mod_fill) | set(ctx.overrides)):
             p = rp_out / 'assets' / ns / 'lang' / 'zh_tw.json'
+            if p.exists():
+                continue
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_bytes(convert_lang(b'{}', ns, ctx))
         for rel, raw in sorted(ctx.file_fill.items()):
