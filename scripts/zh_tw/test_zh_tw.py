@@ -207,6 +207,13 @@ class FixupTest(unittest.TestCase):
         self.assertEqual(set(files), {'assets/x/patchouli_books/g/zh_tw/entries/e.json',
                                       'assets/x/ae2guide/_zh_tw/p.md'})
 
+    def test_override_adds_missing_keys(self):
+        cfg = json.loads((HERE.parents[1] / 'src' / 'zh_tw' / 'config.json').read_text(encoding='utf-8'))
+        ctx = build_tw.Ctx(cfg, conv(False), {}, {}, {'x': {'a': '鐵錠（覆寫）', 'b': '究極精華'}}, {})
+        out = json.loads(build_tw.convert_lang('{"a": "铁锭"}'.encode('utf-8'), 'x', ctx))
+        # a 簡體包有、b 簡體包沒有（模組自帶 zh_tw 譯錯），兩條都要以覆寫為準
+        self.assertEqual(out, {'a': '鐵錠（覆寫）', 'b': '究極精華'})
+
     def test_unknown_cjk_filename_is_red(self):
         with self.assertRaises(SystemExit):
             build_tw.rename_component('新的说明.md', self.ctx())
